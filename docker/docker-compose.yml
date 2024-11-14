@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db_vizitka_api:
+    image: postgres:13
+    container_name: postgres_db_vizitka_api
+    env_file:
+      - ../.env
+    ports:
+      - "5333:5432"
+    volumes:
+      - postgres_data_vizitka_api:/var/lib/postgresql/data
+    networks:
+      - house_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis_vizitka_api:
+    image: redis:6
+    container_name: redis_vizitka_api
+    ports:
+      - "6234:6379"
+    networks:
+      - house_network
+
+  web_vizitka_api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: django_web_vizitka_api
+    command: sh -c "/entrypoint.sh && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ../app:/app
+    env_file:
+      - ../.env
+    depends_on:
+      db_vizitka_api:
+        condition: service_healthy
+      redis_vizitka_api:
+        condition: service_started
+    ports:
+      - "9002:8000"
+    networks:
+      - house_network
+
+networks:
+  house_network:
+    driver: bridge
+
+volumes:
+  postgres_data_vizitka_api:

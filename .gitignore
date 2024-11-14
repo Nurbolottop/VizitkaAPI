@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.env
+docker/ssl/
+postgres_data/
+staticfiles/
+media/
+fixtures_loaded.flag
