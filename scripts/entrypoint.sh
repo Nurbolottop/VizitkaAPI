@@ -58,14 +58,13 @@ echo "Создаем суперпользователя, если он не су
 python manage.py shell -c "
 from django.contrib.auth import get_user_model;
 User = get_user_model();
-username = '$DJANGO_SUPERUSER_USERNAME';
-password = '$DJANGO_SUPERUSER_PASSWORD';
 email = '$DJANGO_SUPERUSER_EMAIL';
-if not User.objects.filter(username=username).exists():
-    user = User.objects.create_superuser(username=username, password=password, email=email);
+password = '$DJANGO_SUPERUSER_PASSWORD';
+if not User.objects.filter(email=email).exists():
+    user = User.objects.create_superuser(email=email, password=password);
     user.is_active = True
     user.save()
-    print('Суперпользователь создан и активирован: ' + username);
+    print('Суперпользователь создан и активирован: ' + email);
 else:
     print('Суперпользователь уже существует.');
 "
